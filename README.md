@@ -25,3 +25,50 @@ Real financial data never goes into this repo. CSVs and the database are listed 
 
 ## Status
 In progress, started October 2026.
+
+## Design Notebook: Level 1, `import.py`
+
+### Problem Statement
+I don't know where my money goes, since my spending is buried in messy bank statements. I need my transactions in one place and tracked. That takes an import tool that reads each bank export and stores it in a database.
+
+### Understandings
+- I understand file paths: pointing the program to a folder and the files inside it.
+- I need to brush up on object-oriented programming, since it's key to organizing the data cleanly.
+- My SQL knowledge is basic and needs more research.
+
+### Design Sketch
+```
+checking.csv   savings.csv
+       \           /
+     read each row
+  (account, date, description, credit/debit, amount)
+            |
+     Transaction object
+  (signed amount, transfer check)
+            |
+      SQLite database
+
+Bill and Income are separate classes. Transactions get
+matched to them later; they aren't created during import.
+```
+
+### Pseudocode
+```
+for each CSV file in the data folder:
+    skip the header row
+    for each row:
+        read account, date, description
+        make the amount negative if it's a debit
+        create a Transaction
+        insert it into the database
+save (commit) and close the database
+```
+
+### Lessons Learned
+- Look at the real data first. The dates are text, not numbers, and the descriptions are all uppercase.
+- The amount is the most important field, and its sign comes from the Credit/Debit column.
+- Inheritance means "is a." A bill isn't a transaction; it's something a transaction pays. Separating them simplified the code.
+- Not every withdrawal is a bill. Sorting belongs after the import, not during it.
+- SQLite inserts don't save until `commit()`.
+- Methods should return clear values (`False`, not `None`).
+- **Still to do:** prevent duplicate imports and remove the hardcoded file path.
